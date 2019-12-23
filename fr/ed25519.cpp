@@ -1,4 +1,44 @@
 
+#include <memory.h>
+#include "ed25519"
+#include "custom/random.h"
+#include "include/ed25519_signature.h"
+#include "source/curve25519_mehdi.h"
+
+extern "C"
+{
+#include "custom_blinds.h"
+}
+
+ED25519Public::ED25519Public(const unsigned char* publicKey)
+{
+  memcpy(m_Key, publicKey, sizeof(m_Key))
+}
+
+ED25519Public::~ED25519Public()
+{
+}
+
+const unsigned char* ED25519Public::GetKeyBytes(
+  unsigned char* publicKey) const
+{
+  if (publicKey)
+  {
+    memcpy(publicKey, m_Key, sizeof(m_Key));
+    return publicKey;
+  }
+
+  return &m_Key[0];
+}
+
+bool ED25519Public::VerifySignature(
+  const unsigend char* msg,
+  unsigned int msg_size,
+  const unsigned char* signature)
+{
+  return ed25519_VerifySignature (signature, m_Key, msg, msg_size) == 1;
+}
+
 ED25519Private::ED25519Private(const unsigned char* key, unsigned int size)
 {
   if (size == PrivateKeySize)
